@@ -5,7 +5,7 @@ import time
 screen=turtle.Screen()
 screen.setup(600,400)
 screen.bgcolor("#141B41")
-#screen.tracer(0)
+screen.tracer(0)
 
 
 #paddle
@@ -24,6 +24,8 @@ ball.shape("circle")
 ball.color("#FFFFFF")
 ball.penup()
 ball.goto(0,-50)
+ball.dx=2
+ball.dy=-2
 
 #bricks
 bricks=[]
@@ -79,6 +81,44 @@ while True:
     time.sleep(0.01)
     if not gameStart:
         continue
+    
+
+    #move the ball
+    ball.setx(ball.xcor()+ball.dx)
+    ball.sety(ball.ycor()+ball.dy)
+
+    #check colision with walls
+    if ball.xcor()>290 or ball.xcor()<-290:
+        ball.dx*=-1
+
+    if ball.ycor()>190:
+        ball.dy*=-1
+
+    if ball.ycor()<-190:
+        ball.dy*=-1
+        ball.goto(0,-50)
+        gameStart=False
+        score=0
+        scoreDis.clear()
+        scoreDis.write(f"Score: {score}",align="center",font=("Arial",18,"bold"))    
+
+    #collision between ball and paddle
+    if (ball.ycor()>-180 and ball.ycor()<-170) and (paddle.xcor()-paddle_width//2<ball.xcor()<paddle.xcor()+paddle_width//2):
+        ball.dy*=-1
+
+    #collision between ball and bricks
+    for brick in bricks:
+        if abs(ball.xcor()-brick.xcor())<40 and abs(ball.ycor()-brick.ycor())<15:
+            score+=10
+            ball.dy*=-1
+            brick.hideturtle()
+            bricks.remove(brick)
+            scoreDis.clear()
+            scoreDis.write(f"Score: {score}",align="center",font=("Arial",18,"bold"))
+    #winning condition
+    if len(bricks)==0:
+        print("You Win")
+        break
 
 
 screen.mainloop()
